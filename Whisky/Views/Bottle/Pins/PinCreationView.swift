@@ -50,8 +50,10 @@ struct PinCreationView: View {
                     panel.allowsMultipleSelection = false
                     panel.canCreateDirectories = false
                     panel.begin { result in
-                        if result == .OK, let url = panel.urls.first {
-                            newPinURL = url
+                        Task {@MainActor in
+                            if result == .OK, let url = panel.urls.first {
+                                newPinURL = url
+                            }
                         }
                     }
                 }

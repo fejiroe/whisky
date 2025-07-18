@@ -82,25 +82,27 @@ struct BottleView: View {
                                                      UTType(exportedAs: "com.microsoft.bat")]
                         panel.directoryURL = bottle.url.appending(path: "drive_c")
                         panel.begin { result in
-                            programLoading = true
-                            Task(priority: .userInitiated) {
-                                if result == .OK {
-                                    if let url = panel.urls.first {
-                                        do {
-                                            if url.pathExtension == "bat" {
-                                                try await Wine.runBatchFile(url: url, bottle: bottle)
-                                            } else {
-                                                try await Wine.runProgram(at: url, bottle: bottle)
+                            Task {@MainActor in
+                                programLoading = true
+                                Task(priority: .userInitiated) {
+                                    if result == .OK {
+                                        if let url = panel.urls.first {
+                                            do {
+                                                if url.pathExtension == "bat" {
+                                                    try await Wine.runBatchFile(url: url, bottle: bottle)
+                                                } else {
+                                                    try await Wine.runProgram(at: url, bottle: bottle)
+                                                }
+                                            } catch {
+                                                print("Failed to run external program: \(error)")
                                             }
-                                        } catch {
-                                            print("Failed to run external program: \(error)")
+                                            programLoading = false
                                         }
+                                    } else {
                                         programLoading = false
                                     }
-                                } else {
-                                    programLoading = false
+                                    updateStartMenu()
                                 }
-                                updateStartMenu()
                             }
                         }
                     }

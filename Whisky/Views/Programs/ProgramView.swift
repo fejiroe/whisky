@@ -66,10 +66,12 @@ struct ProgramView: View {
                     panel.nameFieldStringValue = name + ".app"
                     panel.begin { result in
                         if result == .OK {
-                            if let url = panel.url {
-                                let name = url.deletingPathExtension().lastPathComponent
-                                Task(priority: .userInitiated) {
-                                    await ProgramShortcut.createShortcut(program, app: url, name: name)
+                            Task {@MainActor in
+                                if let url = panel.url {
+                                    let name = url.deletingPathExtension().lastPathComponent
+                                    Task(priority: .userInitiated) {
+                                        await ProgramShortcut.createShortcut(program, app: url, name: name)
+                                    }
                                 }
                             }
                         }

@@ -56,8 +56,10 @@ struct BottleCreationView: View {
                     panel.canCreateDirectories = true
                     panel.directoryURL = BottleData.containerDir
                     panel.begin { result in
-                        if result == .OK, let url = panel.urls.first {
-                            newBottleURL = url
+                        Task {@MainActor in
+                            if result == .OK, let url = panel.urls.first {
+                                newBottleURL = url
+                            }
                         }
                     }
                 }

@@ -59,12 +59,13 @@ struct BottleListEntry: View {
                     panel.canCreateDirectories = true
                     panel.begin { result in
                         if result == .OK {
-                            if let url = panel.urls.first {
-                                let newBottePath = url
-                                    .appending(path: bottle.url.lastPathComponent)
-
-                                bottle.move(destination: newBottePath)
-                                selected = newBottePath
+                            Task {@MainActor in
+                                if let url = panel.urls.first {
+                                    let newBottePath = url
+                                        .appending(path: bottle.url.lastPathComponent)
+                                    bottle.move(destination: newBottePath)
+                                    selected = newBottePath
+                                }
                             }
                         }
                     }
@@ -80,9 +81,11 @@ struct BottleListEntry: View {
                     panel.nameFieldStringValue = bottle.settings.name + ".tar"
                     panel.begin { result in
                         if result == .OK {
-                            if let url = panel.url {
-                                Task.detached(priority: .background) {
-                                    bottle.exportAsArchive(destination: url)
+                            Task {@MainActor in
+                                if let url = panel.url {
+                                    Task.detached(priority: .background) {
+                                        bottle.exportAsArchive(destination: url)
+                                    }
                                 }
                             }
                         }

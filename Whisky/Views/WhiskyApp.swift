@@ -73,9 +73,11 @@ struct WhiskyApp: App {
                     panel.canCreateDirectories = false
                     panel.begin { result in
                         if result == .OK {
-                            if let url = panel.urls.first {
-                                BottleVM.shared.bottlesList.paths.append(url)
-                                BottleVM.shared.loadBottles()
+                            Task {@MainActor in
+                                if let url = panel.urls.first {
+                                    BottleVM.shared.bottlesList.paths.append(url)
+                                    BottleVM.shared.loadBottles()
+                                }
                             }
                         }
                     }
